@@ -1,107 +1,44 @@
 <template>
-  <div class="page-container">
-    <md-app>
-      <md-app-toolbar class="md-primary">
-        <span class="md-title">My Title</span>
-      </md-app-toolbar>
-
-      <md-app-drawer md-permanent="full">
-        <md-toolbar class="md-transparent" md-elevation="0">
-          Navigation
-        </md-toolbar>
-
-        <md-list>
-          <md-list-item>
-            <md-icon>move_to_inbox</md-icon>
-            <span class="md-list-item-text">Inbox</span>
-          </md-list-item>
-
-          <md-list-item>
-            <md-icon>send</md-icon>
-            <span class="md-list-item-text">Sent Mail</span>
-          </md-list-item>
-
-          <md-list-item>
-            <md-icon>delete</md-icon>
-            <span class="md-list-item-text">Trash</span>
-          </md-list-item>
-
-          <md-list-item>
-            <md-icon>error</md-icon>
-            <span class="md-list-item-text">Spam</span>
-          </md-list-item>
-        </md-list>
-      </md-app-drawer>
-
-      <md-app-content>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error
-          quibusdam, non molestias et! Earum magnam, similique, quo recusandae
-          placeat dicta asperiores modi sint ea repudiandae maxime? Quae non
-          explicabo, neque.
-        </p>
-      </md-app-content>
-    </md-app>
+  <div>
+    <div class="md-layout">
+      <div class="md-layout-item md-size-15" v-for="sensor in sensors_with_widget" :key="sensor.uuid">
+        <widget :values="values_for_sensor(sensor.uuid)">
+          <template #title>{{sensor.name}}</template>
+        </widget>
+      </div>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-.md-app {
-  max-height: 400px;
-  border: 1px solid rgba(#000, 0.12);
-}
-
-// Demo purposes only
-.md-drawer {
-  width: 230px;
-  max-width: calc(100vw - 125px);
-}
-</style>
-
 <script>
+import widget from "@/components/tempWidget";
 export default {
-  name: "Normal",
+  components: {
+    widget,
+  },
+  mounted() {
+  },
+  computed: {
+    sensors() {
+      return this.$store.getters.sensors;
+    },
+    values() {
+      return this.$store.getters.values;
+    },
+    most_recent_values() {
+      return this.values[this.values.length - 1];
+    },
+    sensors_with_widget() {
+      return this.sensors.filter((obj) => obj.has_widget === true);
+    },
+  },
+  methods: {
+    values_for_sensor(sensor) {
+      let _sensor = sensor;
+      return this.most_recent_values.values.filter(
+        (obj) => obj.uuid === _sensor
+      )[0];
+    },
+  },
 };
 </script>
