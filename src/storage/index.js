@@ -6,36 +6,22 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         sensors: [
-            {
-                name: "dummy",
-                ip: "127.0.0.1",
-                type: "l0ggi-dummy",
-                uuid: "03eeb102-8728-4a9e-b369-b83a7ac70da0",
-                firmware: "beta-001",
-                last_activity: "0000-00-00 00:00:00",
-                has_widget: true,
-            },
         ],
-        values:
-            [
-                {
-                    timestamp: "0000-00-00 00:00:00", values:
-                        [
-                            {
-                                uuid: "03eeb102-8728-4a9e-b369-b83a7ac70da0",
-                                temperature: 217.33,
-                                humidity: 69,
-                            }
-                        ]
-
-                },
-            ]
-        ,
-        settings: {},
+        values: [
+        ],
+        settings: {
+            sample_duration: 2500,
+        },
     },
     mutations: {
         addSensor(state, sensor) {
             state.sensors.push(sensor)
+        },
+        addSample(state, sample) {
+            state.values.push(sample)
+        },
+        change_sample_duration(state, duration) {
+            state.settings.sample_duration = duration
         }
     },
     actions: {
@@ -44,6 +30,7 @@ const store = new Vuex.Store({
     getters: {
         sensors: state => state.sensors,
         values: state => state.values,
+        duration: state => state.settings.sample_duration,
     }
 
 })

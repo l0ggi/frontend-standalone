@@ -86,6 +86,42 @@
         </md-card-content>
       </md-card>
     </div>
+    <div>
+      <md-card>
+        <md-card-header>
+          <div>Change Sample Duration</div>
+        </md-card-header>
+        <md-card-content style="margin-top: -1vh">
+          <div class="md-layout md-gutter">
+            <div class="md-layout-item md-size-15">
+              <md-field>
+                <label>Duration (in ms)</label>
+                <md-input
+                  :placeholder="duration"
+                  v-model="new_duration"
+                ></md-input>
+                <span class="md-error" v-if="!$v.new_sensor.ip.required"
+                  >The IP Address is required</span
+                >
+                <span class="md-error" v-if="new_sensor_query_error">{{
+                  new_sensor_query_error
+                }}</span>
+              </md-field>
+            </div>
+            <div class="md-layout-item md-size-1">
+              <md-field style="width: 0vw">
+                <md-button
+                  @click="change_sample_duration()"
+                  class="md-icon-button md-dense md-raised md-primary"
+                >
+                  <md-icon>save</md-icon>
+                </md-button>
+              </md-field>
+            </div>
+          </div>
+        </md-card-content>
+      </md-card>
+    </div>
     <div style="margin-top: 1vh">
       <md-table v-model="sensors" md-card>
         <md-table-toolbar>
@@ -124,6 +160,7 @@
 <script>
 import { validationMixin } from "vuelidate";
 import { required, minLength, ipAddress } from "vuelidate/lib/validators";
+import axios from "axios";
 export default {
   name: "Settings",
   mixins: [validationMixin],
@@ -139,6 +176,8 @@ export default {
     },
     new_sensor_query_error: false,
     sending: false,
+    resp: null,
+    new_duration: null,
   }),
   validations: {
     new_sensor: {
@@ -149,10 +188,15 @@ export default {
       },
     },
   },
-  mounted() {},
+  mounted() {
+    this.new_duration = this.duration;
+  },
   computed: {
     sensors() {
       return this.$store.getters.sensors;
+    },
+    duration() {
+      return this.$store.getters.duration;
     },
   },
   methods: {
@@ -166,17 +210,21 @@ export default {
       this.new_sensor.has_widget = false;
       this.new_sensor_query_error = false;
     },
-    querySensor() {
+    async querySensor() {
       this.sending = true;
 
       // Instead of this timeout, here you can call your API
-      window.setTimeout(() => {
-        this.sending = false;
-        //this.clearForm();
-
-        //this.new_sensor_query_error = "Error 404: Not Found";
-        this.new_sensor.uuid = "XXX";
-      }, 1500);
+      await axios
+        .get("http://" + this.new_sensor.ip + "/register")
+        .then((response) => {
+          this.resp = response;
+        })
+        .finally((this.sending = false));
+      this.resp = this.resp.data;
+      this.new_sensor.uuid = this.resp.uuid;
+      this.new_sensor.type = this.resp.type;
+      this.new_sensor.firmware = this.resp.firmware;
+      console.log(this.resp);
     },
     validateIp() {
       this.$v.$touch();
@@ -189,7 +237,9 @@ export default {
     },
     saveSensor() {
       this.$store.commit("addSensor", this.new_sensor);
-      console.log(this.new_sensor);
+    },
+    change_sample_duration() {
+      this.$store.commit("change_sample_duration", this.new_duration);
     },
   },
 };

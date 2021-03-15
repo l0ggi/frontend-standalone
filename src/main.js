@@ -11,10 +11,9 @@ import storage from './storage'
 Vue.config.productionTip = false
 
 Vue.use(VueMaterial)
-
+Vue.use(axios);
 new Vue({
   router,
-  axios,
-  store:storage,
+  store: storage,
   render: h => h(App)
 }).$mount('#app')

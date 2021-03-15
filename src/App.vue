@@ -44,14 +44,44 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "l0ggiStandalone",
   data: () => ({
     menuVisible: false,
   }),
+  computed: {
+    sensors() {
+      return this.$store.getters.sensors;
+    },
+    duration() {
+      return this.$store.getters.duration;
+    },
+  },
+  mounted() {
+    this.sample();
+  },
   methods: {
     toggleMenu() {
       this.menuVisible = !this.menuVisible;
+    },
+    async sample() {
+      let newTimestamp = {};
+      newTimestamp.timestamp = (Date.now() / 1000) | 0;
+      newTimestamp.values = [];
+      this.sensors.forEach(async (sensor) => {
+        let _newValues = {};
+        _newValues.uuid = sensor.uuid;
+        let response = await axios.get("http://" + sensor.ip);
+        response = response.data;
+        _newValues.temperature = response.temperature;
+        _newValues.humidity = response.humidity;
+        newTimestamp.values.push(_newValues);
+      });
+      this.$store.commit("addSample", newTimestamp);
+      window.setTimeout(() => {
+        this.sample();
+      }, this.duration);
     },
   },
 };
